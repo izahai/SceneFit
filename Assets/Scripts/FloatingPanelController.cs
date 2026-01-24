@@ -1,0 +1,119 @@
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+
+public class FloatingPanelController : MonoBehaviour
+{
+    [Header("UI References")]
+    [SerializeField] private GameObject panelRoot;
+    [SerializeField] private Button nextButton;
+    [SerializeField] private Text panelText;
+    [SerializeField] private TextMeshProUGUI panelTextTMP;
+
+    [Header("Input Keys")]
+    [SerializeField] private KeyCode toggleKey = KeyCode.E;
+    [SerializeField] private KeyCode nextKey = KeyCode.F;
+
+    [Header("Panel Texts")]
+    private readonly string[] texts = new string[] { "Caption Matching", "Image Matching", "Tournament Selection"};
+
+    private int currentIndex;
+    public event System.Action NextClicked;
+
+    private void Awake()
+    {
+        if (nextButton != null)
+        {
+            nextButton.onClick.AddListener(OnNextButtonClicked);
+        }
+
+        UpdateText();
+        SetPanelVisible(panelRoot == null || panelRoot.activeSelf);
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(toggleKey))
+        {
+            TogglePanel();
+        }
+
+        if (Input.GetKeyDown(nextKey))
+        {
+            if (nextButton != null)
+            {
+                nextButton.onClick.Invoke();
+            }
+            else
+            {
+                ShowNextText();
+            }
+        }
+    }
+
+    public void TogglePanel()
+    {
+        if (panelRoot == null)
+        {
+            return;
+        }
+
+        SetPanelVisible(!panelRoot.activeSelf);
+    }
+
+    public void ShowNextText()
+    {
+        if (texts == null || texts.Length == 0)
+        {
+            return;
+        }
+
+        currentIndex = (currentIndex + 1) % texts.Length;
+        UpdateText();
+    }
+
+    private void OnNextButtonClicked()
+    {
+        ShowNextText();
+        NextClicked?.Invoke();
+    }
+
+    private void UpdateText()
+    {
+        if (texts == null || texts.Length == 0)
+        {
+            return;
+        }
+
+        string message = texts[Mathf.Clamp(currentIndex, 0, texts.Length - 1)];
+
+        if (panelTextTMP != null)
+        {
+            panelTextTMP.text = message;
+            return;
+        }
+
+        if (panelText != null)
+        {
+            panelText.text = message;
+        }
+    }
+
+    private void SetPanelVisible(bool visible)
+    {
+        if (panelRoot != null)
+        {
+            panelRoot.SetActive(visible);
+        }
+    }
+
+    public void SetVisible(bool visible)
+    {
+        SetPanelVisible(visible);
+    }
+
+    public bool IsVisible()
+    {
+        return panelRoot != null && panelRoot.activeSelf;
+    }
+}
