@@ -2,11 +2,12 @@ using UnityEngine;
 
 public class LoadingRingRotate : MonoBehaviour
 {
-    public Vector3 rotationAxis = Vector3.up;
-    public float rotationSpeed = 180f;
+    Vector3 rotationAxis = Vector3.up;
+    float rotationSpeed = 500f;
 
     void Update()
     {
-        transform.Rotate(rotationAxis, rotationSpeed * Time.deltaTime, Space.Self);
+        float step = rotationSpeed * Time.deltaTime;
+        transform.Rotate(rotationAxis, step, Space.Self);
     }
 }
