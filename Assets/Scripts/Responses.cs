@@ -31,3 +31,9 @@ public class ApproachResponse
     public string[] query;
     public ClothingResult result;
 }
+
+[Serializable]
+public class TranscriptResponse
+{
+    public string transcript;
+}
