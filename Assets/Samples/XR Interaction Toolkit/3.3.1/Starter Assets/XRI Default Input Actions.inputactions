@@ -2431,8 +2431,8 @@
                 },
                 {
                     "name": "",
-                    "id": "c3b7d4b3-cb71-4912-a39f-6f14e36af199",
-                    "path": "<Mouse>/leftButton",
+                    "id": "4f511ee5-dfbd-474a-a8fd-3dfc87eade44",
+                    "path": "<XRController>{RightHand}/{TriggerButton}",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

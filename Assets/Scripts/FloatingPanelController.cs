@@ -9,6 +9,8 @@ public class FloatingPanelController : MonoBehaviour
     [SerializeField] private GameObject panelRoot;
     [SerializeField] private Button nextButton;
     [SerializeField] private TextMeshProUGUI panelTextTMP;
+    [SerializeField] private GameObject mapCanvas;
+    [SerializeField] private GameObject feedbackMenuCanvas;
 
     [Header("Input Actions (VR)")]
     [SerializeField] private InputActionProperty togglePanelAction;
@@ -24,7 +26,7 @@ public class FloatingPanelController : MonoBehaviour
     private int currentIndex;
 
     public event System.Action NextClicked;
-
+    private bool isPanelVisible;    
     private void Awake()
     {
         if (nextButton != null)
@@ -33,7 +35,9 @@ public class FloatingPanelController : MonoBehaviour
         }
 
         UpdateText();
-        SetPanelVisible(panelRoot != null && panelRoot.activeSelf);
+        // SetPanelVisible(panelRoot != null && panelRoot.activeSelf);
+        isPanelVisible = false;
+        ApplyVisibility();
     }
 
     private void OnEnable()
@@ -57,14 +61,24 @@ public class FloatingPanelController : MonoBehaviour
             TogglePanel();
         }
     }
+    private void ApplyVisibility()
+    {
+        if (panelRoot != null)
+            panelRoot.SetActive(isPanelVisible);
+
+        if (mapCanvas != null)
+            mapCanvas.SetActive(isPanelVisible);
+
+        if (feedbackMenuCanvas != null)
+            feedbackMenuCanvas.SetActive(isPanelVisible);
+    }
 
     public void TogglePanel()
     {
-        if (panelRoot == null)
-            return;
-
-        panelRoot.SetActive(!panelRoot.activeSelf);
+        isPanelVisible = !isPanelVisible;
+        ApplyVisibility();
     }
+    
 
     private void OnNextButtonClicked()
     {

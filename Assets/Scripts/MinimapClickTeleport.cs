@@ -43,6 +43,8 @@ public class MinimapClickTeleport : MonoBehaviour, IPointerClickHandler
             return;
 
         Rect rect = minimapRect.rect;
+        if (!rect.Contains(localPoint))
+            return;
 
         float u = Mathf.InverseLerp(rect.xMin, rect.xMax, localPoint.x);
         float v = Mathf.InverseLerp(rect.yMin, rect.yMax, localPoint.y);
