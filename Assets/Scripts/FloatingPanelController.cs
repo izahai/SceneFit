@@ -1,23 +1,28 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.InputSystem;
 
 public class FloatingPanelController : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private GameObject panelRoot;
     [SerializeField] private Button nextButton;
-    [SerializeField] private Text panelText;
     [SerializeField] private TextMeshProUGUI panelTextTMP;
 
-    [Header("Input Keys")]
-    [SerializeField] private KeyCode toggleKey = KeyCode.E;
-    [SerializeField] private KeyCode nextKey = KeyCode.F;
+    [Header("Input Actions (VR)")]
+    [SerializeField] private InputActionProperty togglePanelAction;
 
     [Header("Panel Texts")]
-    private readonly string[] texts = new string[] { "Caption Matching", "Image Matching", "Tournament Selection"};
+    [SerializeField] private string[] texts =
+    {
+        "Caption Matching",
+        "Image Matching",
+        "Tournament Selection"
+    };
 
     private int currentIndex;
+
     public event System.Action NextClicked;
 
     private void Awake()
@@ -28,48 +33,37 @@ public class FloatingPanelController : MonoBehaviour
         }
 
         UpdateText();
-        SetPanelVisible(panelRoot == null || panelRoot.activeSelf);
+        SetPanelVisible(panelRoot != null && panelRoot.activeSelf);
+    }
+
+    private void OnEnable()
+    {
+        if (togglePanelAction.action != null)
+            togglePanelAction.action.Enable();
+    }
+
+    private void OnDisable()
+    {
+        if (togglePanelAction.action != null)
+            togglePanelAction.action.Disable();
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(toggleKey))
+        // VR controller toggle input
+        if (togglePanelAction.action != null &&
+            togglePanelAction.action.WasPressedThisFrame())
         {
             TogglePanel();
-        }
-
-        if (Input.GetKeyDown(nextKey))
-        {
-            if (nextButton != null)
-            {
-                nextButton.onClick.Invoke();
-            }
-            else
-            {
-                ShowNextText();
-            }
         }
     }
 
     public void TogglePanel()
     {
         if (panelRoot == null)
-        {
             return;
-        }
 
-        SetPanelVisible(!panelRoot.activeSelf);
-    }
-
-    public void ShowNextText()
-    {
-        if (texts == null || texts.Length == 0)
-        {
-            return;
-        }
-
-        currentIndex = (currentIndex + 1) % texts.Length;
-        UpdateText();
+        panelRoot.SetActive(!panelRoot.activeSelf);
     }
 
     private void OnNextButtonClicked()
@@ -78,42 +72,26 @@ public class FloatingPanelController : MonoBehaviour
         NextClicked?.Invoke();
     }
 
-    private void UpdateText()
+    private void ShowNextText()
     {
         if (texts == null || texts.Length == 0)
-        {
             return;
-        }
 
-        string message = texts[Mathf.Clamp(currentIndex, 0, texts.Length - 1)];
+        currentIndex = (currentIndex + 1) % texts.Length;
+        UpdateText();
+    }
 
-        if (panelTextTMP != null)
-        {
-            panelTextTMP.text = message;
+    private void UpdateText()
+    {
+        if (panelTextTMP == null || texts.Length == 0)
             return;
-        }
 
-        if (panelText != null)
-        {
-            panelText.text = message;
-        }
+        panelTextTMP.text = texts[currentIndex];
     }
 
     private void SetPanelVisible(bool visible)
     {
         if (panelRoot != null)
-        {
             panelRoot.SetActive(visible);
-        }
-    }
-
-    public void SetVisible(bool visible)
-    {
-        SetPanelVisible(visible);
-    }
-
-    public bool IsVisible()
-    {
-        return panelRoot != null && panelRoot.activeSelf;
     }
 }
