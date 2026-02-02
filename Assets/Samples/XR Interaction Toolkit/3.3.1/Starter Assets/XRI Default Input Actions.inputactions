@@ -1307,23 +1307,23 @@
                 },
                 {
                     "name": "",
-                    "id": "7b66b940-7dba-4898-831c-fe4a6381173c",
-                    "path": "<Keyboard>/g",
+                    "id": "d061af22-b84a-4734-b924-d25af7930c34",
+                    "path": "<XRController>{LeftHand}/{PrimaryButton}",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Feedback Menu",
+                    "action": "Minimap Toggle",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "0f00a293-693f-4615-897a-946e6ac94208",
-                    "path": "<Keyboard>/m",
+                    "id": "be64b8bc-e5d1-4ea9-8d9d-8058bd79374e",
+                    "path": "<XRController>{LeftHand}/{SecondaryButton}",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Minimap Toggle",
+                    "action": "Feedback Menu",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
