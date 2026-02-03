@@ -2307,7 +2307,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0adba8a96860b4a5b9293ef8dc28d22e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpawnGlbOnAction
-  spawnOffset: {x: 0, y: 0, z: 0}
+  spawnOffset: {x: 0, y: -1.36144, z: 0}
   loadingPlaceholder: {fileID: 945288292}
   maxCandidates: 3
   characterRoot: {fileID: 1980988037}
@@ -2821,7 +2821,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4387371294552780855, guid: e114c118ed2464caa87e6b6811e92b13, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8710791175193572495, guid: e114c118ed2464caa87e6b6811e92b13, type: 3}
       propertyPath: m_Mesh
