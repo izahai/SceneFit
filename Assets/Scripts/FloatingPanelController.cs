@@ -18,9 +18,10 @@ public class FloatingPanelController : MonoBehaviour
     [Header("Panel Texts")]
     [SerializeField] private string[] texts =
     {
-        "Caption Matching",
-        "Image Matching",
-        "Tournament Selection"
+        "Image Editing",
+        "Vision Language Model",
+        "CLIP Model",
+        "Asthetic Model"
     };
 
     private int currentIndex;
