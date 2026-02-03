@@ -9,7 +9,6 @@ public class FloatingPanelController : MonoBehaviour
     [SerializeField] private GameObject panelRoot;
     [SerializeField] private Button nextButton;
     [SerializeField] private TextMeshProUGUI panelTextTMP;
-    [SerializeField] private GameObject mapCanvas;
     [SerializeField] private GameObject feedbackMenuCanvas;
 
     [Header("Input Actions (VR)")]
@@ -65,9 +64,6 @@ public class FloatingPanelController : MonoBehaviour
     {
         if (panelRoot != null)
             panelRoot.SetActive(isPanelVisible);
-
-        if (mapCanvas != null)
-            mapCanvas.SetActive(isPanelVisible);
 
         if (feedbackMenuCanvas != null)
             feedbackMenuCanvas.SetActive(isPanelVisible);
