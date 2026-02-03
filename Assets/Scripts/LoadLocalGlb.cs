@@ -11,6 +11,9 @@ public class LocalGlbLoader : MonoBehaviour
     public string relativePath;
     public bool DefaultVisible { get; set; } = true;
     public GameObject AvatarRoot { get; private set; }
+    [SerializeField]
+    private AnimatorOverrideController humanoidOverride;
+
 
     public void Init(string glbPath)
     {
