@@ -13,8 +13,8 @@ class AcceptAllCerts : CertificateHandler
 public class ApiGlbResolver : MonoBehaviour
 {
     private string serverUrl =
-        "https://proconciliation-tien-erythemal.ngrok-free.dev/api/v1/all-methods";
-        //"http://127.0.0.1:8000/mock-api";
+        // "https://proconciliation-tien-erythemal.ngrok-free.dev/api/v1/all-methods";
+        "http://127.0.0.1:8000/mock-api";
 
     [Header("GLB Mapping")]
     public string glbFolder = "Avatars";
@@ -79,24 +79,12 @@ public class ApiGlbResolver : MonoBehaviour
         List<string> glbResults = new List<string>();
         AllMethodsResponse response = JsonUtility.FromJson<AllMethodsResponse>(json);
         if (response == null)
-        {
-            return glbResults;
-        }
+            return glbResults; 
 
-        if (response.approach_1 != null && response.approach_1.result != null)
-        {
-            glbResults.Add(BuildGlbName(response.approach_1.result.name_clothes));
-        }
-
-        if (response.approach_2 != null && response.approach_2.result != null)
-        {
-            glbResults.Add(BuildGlbName(response.approach_2.result.name_clothes));
-        }
-
-        if (response.approach_3 != null && !string.IsNullOrEmpty(response.approach_3.result.name_clothes))
-        {
-            glbResults.Add(BuildGlbName(response.approach_3.result.name_clothes));
-        }
+        AddTopResult(response.imageEdit, glbResults);
+        AddTopResult(response.vlm, glbResults);
+        AddTopResult(response.clip, glbResults);
+        AddTopResult(response.aesthetic, glbResults);
 
         return glbResults;
     }
@@ -116,4 +104,26 @@ public class ApiGlbResolver : MonoBehaviour
         string baseName = Path.GetFileNameWithoutExtension(rawName);
         return baseName + glbExtension;
     }
+
+    private void AddTopResult(
+        List<ClothingResult> results,
+        List<string> glbResults
+    )
+    {
+        if (results == null || results.Count == 0)
+            return;
+
+        // Optional: pick highest score
+        ClothingResult best = results[0];
+        for (int i = 1; i < results.Count; i++)
+        {
+            if (results[i].score > best.score)
+                best = results[i];
+        }
+
+        string glbName = BuildGlbName(best.name);
+        if (!string.IsNullOrEmpty(glbName))
+            glbResults.Add(glbName);
+    }
+
 }

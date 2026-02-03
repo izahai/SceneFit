@@ -103,7 +103,7 @@ public class FloatingPanelController : MonoBehaviour
         panelTextTMP.text = texts[currentIndex];
     }
 
-    private void SetPanelVisible(bool visible)
+    public void SetPanelVisible(bool visible)
     {
         if (panelRoot != null)
             panelRoot.SetActive(visible);
