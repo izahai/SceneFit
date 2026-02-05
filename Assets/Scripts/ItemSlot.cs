@@ -4,23 +4,44 @@ using UnityEngine.UI;
 public class ItemSlot : MonoBehaviour
 {
     public RawImage displayImage;
-    public Toggle likeToggle;
+    public Color onColor = Color.red;
+    public Color offColor = Color.white;
     
+    // Assign these in the Inspector for better performance and reliability
+    private Toggle likeToggle; 
+    private Image toggleBackground;
     [HideInInspector] public ClothingResult currentData;
+
+    void Awake()
+    {
+        // Fallback: If you forgot to drag them in the inspector, find them by code
+        if (likeToggle == null) 
+            likeToggle = GetComponentInChildren<Toggle>();
+
+        if (toggleBackground == null && likeToggle != null)
+            toggleBackground = likeToggle.transform.Find("Background").GetComponent<Image>();
+    }
+
+    void Start()
+    {
+        if (likeToggle != null && toggleBackground != null)
+        {
+            // Set initial state
+            UpdateColor(likeToggle.isOn);
+            // Listen for changes
+            likeToggle.onValueChanged.AddListener(UpdateColor);
+        }
+    }
+
+    void UpdateColor(bool isOn)
+    {
+        if (toggleBackground != null)
+            toggleBackground.color = isOn ? onColor : offColor;
+    }
 
     public void Setup(ClothingResult data)
     {
         currentData = data;
-        likeToggle.isOn = false; // Reset for new page
+        if (likeToggle != null) likeToggle.isOn = false; 
     }
-
-    // public void OnClickSelect()
-    // {
-    //     SelectionManager.Instance.SelectModel(currentData);
-    // }
-
-    // public void OnToggleLike(bool isLiked)
-    // {
-    //     UserFeedbackManager.Instance.RecordFeedback(currentData, currentMethod, isLiked);
-    // }
 }

@@ -1,35 +1,35 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using TMPro; // 1. Added namespace
 
 public class GalleryManager : MonoBehaviour 
 {
-    public ApiGlbResolver apiResolver;
+    public static GalleryManager Instance;
+    public TextMeshProUGUI methodTitleText;
     public ItemSlot[] slots; // Assign your 5 slots here
     private AllMethodsResponse lastResponse;
     private int currentMethodIndex = 0;
-    private string[] methodKeys = { "Image Edit", "Vision Language Model", "CLIP Model", "Aesthetic Predictor" };
-
-    public void RequestNewImages(string path) 
+    private string[] methodTitles = { "Image Edit", "Vision Language Model", "CLIP Model", "Aesthetic Predictor" };
+    private void Awake() => Instance = this;
+    public void UpdateResponse(AllMethodsResponse res) 
     {
-        StartCoroutine(apiResolver.ResolveTopGlbsFromImage(path, (response) => {
-            if(response != null) {
-                lastResponse = response;
-                currentMethodIndex = 0;
-                DisplayCurrentMethod();
-            }
-        }));
+        lastResponse = res;
+        currentMethodIndex = 0;
+        DisplayCurrentMethod();
     }
 
     public void NextMethod()
     {
         if (lastResponse == null) return;
-        currentMethodIndex = (currentMethodIndex + 1) % methodKeys.Length;
+        currentMethodIndex = (currentMethodIndex + 1) % methodTitles.Length;
         DisplayCurrentMethod();
     }
 
     private void DisplayCurrentMethod()
     {
+        if (methodTitleText != null) methodTitleText.text = methodTitles[currentMethodIndex];
+        
         List<ClothingResult> currentList = GetListByIndex(currentMethodIndex);
 
         for (int i = 0; i < slots.Length; i++)
