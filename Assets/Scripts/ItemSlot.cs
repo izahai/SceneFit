@@ -30,12 +30,20 @@ public class ItemSlot : MonoBehaviour
 
     void Start()
     {
-        if (likeToggle != null && toggleBackground != null)
+        if (likeToggle != null)
         {
-            // Set initial state
-            UpdateColor(likeToggle.isOn);
-            // Listen for changes
-            likeToggle.onValueChanged.AddListener(UpdateColor);
+            likeToggle.onValueChanged.AddListener((isOn) => {
+                if (isOn) 
+                {
+                    // Tell the manager this slot was selected
+                    GalleryManager.Instance.OnSlotSelected(this);
+                    UpdateColor(true);
+                }
+                else 
+                {
+                    UpdateColor(false);
+                }
+            });
             avaButton.onClick.AddListener(() => {
                 ModelSpawner.Instance.SpawnModel(indexMethod, indexAvatar);
             });

@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using TMPro; // 1. Added namespace
+using TMPro;
 
 public class GalleryManager : MonoBehaviour 
 {
@@ -12,6 +12,9 @@ public class GalleryManager : MonoBehaviour
     private int currentMethodIndex = 0;
     private string[] methodTitles = { "Image Edit", "Vision Language Model", "CLIP Model", "Aesthetic Predictor" };
     private void Awake() => Instance = this;
+
+
+
     public void UpdateResponse(AllMethodsResponse res) 
     {
         lastResponse = res;
@@ -63,6 +66,17 @@ public class GalleryManager : MonoBehaviour
             yield return request.SendWebRequest();
             if (request.result == UnityEngine.Networking.UnityWebRequest.Result.Success) {
                 target.texture = UnityEngine.Networking.DownloadHandlerTexture.GetContent(request);
+            }
+        }
+    }
+
+    public void OnSlotSelected(ItemSlot selectedSlot)
+    {
+        foreach (var slot in slots)
+        {
+            if (slot != selectedSlot && slot.gameObject.activeSelf)
+            {
+                slot.GetComponentInChildren<Toggle>().isOn = false;
             }
         }
     }
