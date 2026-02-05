@@ -14,8 +14,8 @@ public class ApiGlbResolver : MonoBehaviour
 {
     private string serverUrl =
         // "https://proconciliation-tien-erythemal.ngrok-free.dev/api/v1/all-methods";
-        "https://nondepressed-semipneumatically-eveline.ngrok-free.dev/api/v1/retrieval/all-methods";
-        //"http://127.0.0.1:8000/mock-api";
+        // "https://nondepressed-semipneumatically-eveline.ngrok-free.dev/api/v1/retrieval/all-methods";
+        "http://127.0.0.1:8000/mock-api";
 
     [Header("GLB Mapping")]
     public string glbFolder = "Avatars";

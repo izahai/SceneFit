@@ -1,7 +1,6 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.InputSystem;
 
 public class SpawnGlbOnAction : MonoBehaviour
 {
@@ -16,8 +15,6 @@ public class SpawnGlbOnAction : MonoBehaviour
     public ApiGlbResolver serverResolver;
     public FloatingPanelController floatingPanel;
 
-    [Header("Input Actions (XR)")]
-    public InputActionProperty captureAction;
 
     // Cached spawn transform
     private Vector3 cachedSpawnPosition;
@@ -27,46 +24,22 @@ public class SpawnGlbOnAction : MonoBehaviour
     private int currentGlbIndex = -1;
     private readonly List<GameObject> loadedGlbObjects = new List<GameObject>();
 
-    private void OnEnable()
+    private void Awake()
     {
-        captureAction.action.Enable();
-        captureAction.action.performed += OnCapturePerformed;
-
         if (floatingPanel != null)
         {
             floatingPanel.NextClicked += ShowNextResolvedGlb;
         }
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
-        captureAction.action.performed -= OnCapturePerformed;
-        captureAction.action.Disable();
-
         if (floatingPanel != null)
         {
             floatingPanel.NextClicked -= ShowNextResolvedGlb;
         }
     }
 
-    private void OnCapturePerformed(InputAction.CallbackContext ctx)
-    {
-        if (characterRoot == null)
-        {
-            Debug.LogWarning("Character Root not assigned.");
-            return;
-        }
-
-        cachedSpawnPosition = characterRoot.position + spawnOffset;
-        cachedSpawnRotation = characterRoot.rotation;
-
-        StartCoroutine(CaptureAndSpawnFromServer());
-    }
-
-    private void OnNextPerformed(InputAction.CallbackContext ctx)
-    {
-        ShowNextResolvedGlb();
-    }
 
     IEnumerator CaptureAndSpawnFromServer()
     {
@@ -179,6 +152,21 @@ public class SpawnGlbOnAction : MonoBehaviour
             }
         }
     }
+
+    public void TriggerCapture()
+    {
+        if (characterRoot == null)
+        {
+            Debug.LogWarning("Character Root not assigned.");
+            return;
+        }
+
+        cachedSpawnPosition = characterRoot.position + spawnOffset;
+        cachedSpawnRotation = characterRoot.rotation;
+
+        StartCoroutine(CaptureAndSpawnFromServer());
+    }
+
 
     private void ClearLoadedGlbs()
     {

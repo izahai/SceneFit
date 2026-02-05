@@ -7,7 +7,7 @@ public class PlayerImageCapture : MonoBehaviour
     public Camera captureCamera;
     public GameObject uiObject;
     public int imageWidth = 3840;
-    public int imageHeight = 2160;
+    public int imageHeight = 2140;
     private RenderTexture rt;
 
     private void Awake()
