@@ -5,10 +5,10 @@ public class PlayerImageCapture : MonoBehaviour
 {
     [Header("Capture Settings")]
     public Camera captureCamera;
-    public GameObject uiObject;
+    public UnityEngine.UI.RawImage previewDisplay;
+    public RenderTexture rt;
     public int imageWidth = 3840;
     public int imageHeight = 2140;
-    private RenderTexture rt;
 
     private void Awake()
     {
@@ -19,8 +19,9 @@ public class PlayerImageCapture : MonoBehaviour
         }
 
         rt = new RenderTexture(imageWidth, imageHeight, 24);
+        previewDisplay.texture = rt;
         captureCamera.targetTexture = rt;
-        captureCamera.enabled = false; // never render to screen
+        captureCamera.enabled = true; // never render to screen
     }
 
     public string CaptureImage()
@@ -30,9 +31,6 @@ public class PlayerImageCapture : MonoBehaviour
             Debug.LogError("Capture camera not assigned.");
             return null;
         }
-        uiObject.SetActive(false);
-
-        captureCamera.Render();
 
         RenderTexture.active = rt;
 
@@ -56,7 +54,6 @@ public class PlayerImageCapture : MonoBehaviour
         File.WriteAllBytes(path, bytes);
         Debug.Log($"Captured image: {path}");
 
-        uiObject.SetActive(true);
         return path;
     }
 

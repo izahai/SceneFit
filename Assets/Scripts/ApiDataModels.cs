@@ -1,18 +1,12 @@
 using System;
 using System.Collections.Generic;
 
-// [Serializable]
-// public class ClothesResponse
-// {
-//     public string[] query;
-//     public List<ClothingResult> results;
-// }
-
 [Serializable]
 public class ClothingResult
 {
     public string name;
     public float score;
+    public string image_url;
 }
 
 [Serializable]
