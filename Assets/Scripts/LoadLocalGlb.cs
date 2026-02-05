@@ -1,7 +1,5 @@
 using UnityEngine;
-using UnityEngine.Networking;
 using GLTFast;
-using System.Threading.Tasks;
 using System.IO;
 
 

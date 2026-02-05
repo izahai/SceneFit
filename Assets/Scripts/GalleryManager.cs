@@ -60,13 +60,16 @@ public class GalleryManager : MonoBehaviour
     {
         if (methodTitleText != null) methodTitleText.text = methodTitles[currentMethodIndex];
 
-        for (int i = 0; i < slots.Length-1; i++)
+        int i;
+        for (i = 0; i < slots.Length-1; i++)
         {
             slots[i].gameObject.SetActive(true);
             CandidateOutfit can = CompetitveHandler.Instance.cans[i];
             ClothingResult data = GetListByIndex(can.indexMethod)[can.indexAvatar];
             slots[i].Setup(data, can.indexMethod, can.indexAvatar);
+            StartCoroutine(DownloadImage(data.image_url, slots[i].displayImage));
         }
+        slots[i].gameObject.SetActive(false);
     }
 
     private List<ClothingResult> GetListByIndex(int index)
