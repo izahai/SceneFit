@@ -10,10 +10,9 @@ public class GalleryManager : MonoBehaviour
     public ItemSlot[] slots; // Assign your 5 slots here
     private AllMethodsResponse lastResponse;
     private int currentMethodIndex = 0;
-    private string[] methodTitles = { "Image Edit", "Vision Language Model", "CLIP Model", "Aesthetic Predictor" };
+    private string[] methodTitles = { "Image Edit", "Vision Language Model", "CLIP Model", "Aesthetic Predictor", "Final Choice"};
+    private Dictionary<string, Texture2D> imageCache = new Dictionary<string, Texture2D>();
     private void Awake() => Instance = this;
-
-
 
     public void UpdateResponse(AllMethodsResponse res) 
     {
@@ -25,6 +24,13 @@ public class GalleryManager : MonoBehaviour
     public void NextMethod()
     {
         if (lastResponse == null) return;
+        CompetitveHandler.Instance.AppendCandidate(currentMethodIndex, GetSelectedIndex());
+        if (currentMethodIndex == 3)
+        {
+            ++currentMethodIndex;
+            DisplayFinalChoice();
+            return;
+        }
         currentMethodIndex = (currentMethodIndex + 1) % methodTitles.Length;
         DisplayCurrentMethod();
     }
@@ -50,6 +56,19 @@ public class GalleryManager : MonoBehaviour
         }
     }
 
+    private void DisplayFinalChoice()
+    {
+        if (methodTitleText != null) methodTitleText.text = methodTitles[currentMethodIndex];
+
+        for (int i = 0; i < slots.Length-1; i++)
+        {
+            slots[i].gameObject.SetActive(true);
+            CandidateOutfit can = CompetitveHandler.Instance.cans[i];
+            ClothingResult data = GetListByIndex(can.indexMethod)[can.indexAvatar];
+            slots[i].Setup(data, can.indexMethod, can.indexAvatar);
+        }
+    }
+
     private List<ClothingResult> GetListByIndex(int index)
     {
         return index switch {
@@ -61,11 +80,34 @@ public class GalleryManager : MonoBehaviour
         };
     }
 
-    private System.Collections.IEnumerator DownloadImage(string url, RawImage target) {
-        using (UnityEngine.Networking.UnityWebRequest request = UnityEngine.Networking.UnityWebRequestTexture.GetTexture(url)) {
+    private System.Collections.IEnumerator DownloadImage(string url, RawImage target) 
+    {
+        // 2. Check if we already have it in memory
+        if (imageCache.ContainsKey(url))
+        {
+            target.texture = imageCache[url];
+            yield break; // Exit the coroutine early
+        }
+
+        using (UnityEngine.Networking.UnityWebRequest request = UnityEngine.Networking.UnityWebRequestTexture.GetTexture(url)) 
+        {
             yield return request.SendWebRequest();
-            if (request.result == UnityEngine.Networking.UnityWebRequest.Result.Success) {
-                target.texture = UnityEngine.Networking.DownloadHandlerTexture.GetContent(request);
+
+            if (request.result == UnityEngine.Networking.UnityWebRequest.Result.Success) 
+            {
+                Texture2D downloadedTexture = UnityEngine.Networking.DownloadHandlerTexture.GetContent(request);
+                
+                // 3. Store it in the cache for next time
+                if (!imageCache.ContainsKey(url))
+                {
+                    imageCache.Add(url, downloadedTexture);
+                }
+
+                target.texture = downloadedTexture;
+            }
+            else 
+            {
+                Debug.LogError("Error downloading image: " + request.error);
             }
         }
     }
@@ -79,5 +121,18 @@ public class GalleryManager : MonoBehaviour
                 slot.GetComponentInChildren<Toggle>().isOn = false;
             }
         }
+    }
+
+    public int GetSelectedIndex()
+    {
+        for (int i = 0; i < slots.Length; i++)
+        {   
+            if (slots[i].likeToggle.isOn)
+            {
+                return i;
+            }
+        }
+        
+        return -1; // No selection found
     }
 }

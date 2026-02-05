@@ -7,14 +7,13 @@ public class ItemSlot : MonoBehaviour
     public RawImage displayImage;
     public Color onColor = Color.red;
     public Color offColor = Color.white;
-    
-    // Assign these in the Inspector for better performance and reliability
+
     private Button avaButton;
-    private Toggle likeToggle; 
     private Image toggleBackground;
     private int indexMethod, indexAvatar;
     [HideInInspector] public ClothingResult currentData;
-
+    [HideInInspector] public Toggle likeToggle; 
+    
     void Awake()
     {
         // Fallback: If you forgot to drag them in the inspector, find them by code

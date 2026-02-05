@@ -1633,6 +1633,7 @@ GameObject:
   - component: {fileID: 1599820735}
   - component: {fileID: 1599820736}
   - component: {fileID: 1599820737}
+  - component: {fileID: 1599820738}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1736,6 +1737,39 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ModelSpawner
   spawnOffset: {x: 0, y: -1.36144, z: 0}
   glbBaseFolder: Avatars/
+--- !u!114 &1599820738
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1599820729}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09d5dff39ff6bc042b9d9d30cafa3c99, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UiManager
+  ui: {fileID: 8880754563534597628}
+  trigger:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Trigger
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: 22604e0f-3fb5-40cd-bf10-ac5a8d214636
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings:
+      - m_Name: 
+        m_Id: 88a125cd-5a37-4643-b02d-cc513d66155c
+        m_Path: <XRController>{LeftHand}/{PrimaryButton}
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Trigger
+        m_Flags: 0
+      m_Flags: 0
+    m_Reference: {fileID: 0}
 --- !u!1 &1753284897
 GameObject:
   m_ObjectHideFlags: 0
