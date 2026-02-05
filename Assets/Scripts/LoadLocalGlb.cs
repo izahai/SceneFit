@@ -11,9 +11,6 @@ public class LocalGlbLoader : MonoBehaviour
     public string relativePath;
     public bool DefaultVisible { get; set; } = true;
     public GameObject AvatarRoot { get; private set; }
-    [SerializeField]
-    private AnimatorOverrideController humanoidOverride;
-
 
     public void Init(string glbPath)
     {
@@ -34,7 +31,7 @@ public class LocalGlbLoader : MonoBehaviour
             var op = request.SendWebRequest();
             while (!op.isDone)
                 await Task.Yield();
-
+                if (this == null) return;
             if (request.result != UnityWebRequest.Result.Success)
             {
                 Debug.LogError(request.error);
@@ -56,7 +53,8 @@ public class LocalGlbLoader : MonoBehaviour
 
         glbData = File.ReadAllBytes(path);
 #endif
-
+        if (this == null) return;
+        
         var gltf = new GltfImport();
 
         if (!await gltf.Load(glbData))

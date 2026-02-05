@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,8 +9,10 @@ public class ItemSlot : MonoBehaviour
     public Color offColor = Color.white;
     
     // Assign these in the Inspector for better performance and reliability
+    private Button avaButton;
     private Toggle likeToggle; 
     private Image toggleBackground;
+    private int indexMethod, indexAvatar;
     [HideInInspector] public ClothingResult currentData;
 
     void Awake()
@@ -20,6 +23,9 @@ public class ItemSlot : MonoBehaviour
 
         if (toggleBackground == null && likeToggle != null)
             toggleBackground = likeToggle.transform.Find("Background").GetComponent<Image>();
+
+        if (avaButton == null)
+            avaButton = GetComponentInChildren<Button>();
     }
 
     void Start()
@@ -30,6 +36,10 @@ public class ItemSlot : MonoBehaviour
             UpdateColor(likeToggle.isOn);
             // Listen for changes
             likeToggle.onValueChanged.AddListener(UpdateColor);
+            avaButton.onClick.AddListener(() => {
+                ModelSpawner.Instance.SpawnModel(indexMethod, indexAvatar);
+            });
+
         }
     }
 
@@ -39,9 +49,11 @@ public class ItemSlot : MonoBehaviour
             toggleBackground.color = isOn ? onColor : offColor;
     }
 
-    public void Setup(ClothingResult data)
+    public void Setup(ClothingResult data, int iM, int iAva)
     {
         currentData = data;
+        indexMethod = iM;
+        indexAvatar = iAva;
         if (likeToggle != null) likeToggle.isOn = false; 
     }
 }

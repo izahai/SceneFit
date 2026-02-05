@@ -13,9 +13,6 @@ public class ImageCaptureRequester : MonoBehaviour
     public ApiGlbResolver serverResolver;
     public GameObject loadingPlaceholder;
 
-    private List<string> resolvedGlbs = new List<string>();
-    private int currentGlbIndex = -1;
-
     public void TriggerCapture()
     {
         Vector3 spawnPos = characterRoot.position + spawnOffset;
@@ -45,18 +42,10 @@ public class ImageCaptureRequester : MonoBehaviour
         // 2. Serialize data
         GalleryManager.Instance.UpdateResponse(results);
         
-        // 2. Tell the Spawner to handle the 3D work
-        // resolvedGlbs = results;
-        // ModelSpawner.Instance.SpawnResolvedModels(resolvedGlbs, pos, rot);
+        // 3. Tell the Spawner to handle the 3D work
+        ModelSpawner.Instance.UpdateResponse(results, pos, rot);
         
         // currentGlbIndex = 0;
         if (loadingPlaceholder) loadingPlaceholder.SetActive(false);
-    }
-
-    public void CycleNext()
-    {
-        if (resolvedGlbs.Count == 0) return;
-        currentGlbIndex = (currentGlbIndex + 1) % resolvedGlbs.Count;
-        ModelSpawner.Instance.SetVisibleIndex(currentGlbIndex);
     }
 }

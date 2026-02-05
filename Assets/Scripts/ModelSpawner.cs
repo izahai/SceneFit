@@ -1,51 +1,64 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.IO;
 
 public class ModelSpawner : MonoBehaviour
 {
     public static ModelSpawner Instance;
+    public Vector3 spawnOffset = Vector3.zero;
     public string glbBaseFolder = "Avatars/";
-    private List<GameObject> loadedGlbObjects = new List<GameObject>();
+    private GameObject currentActiveModel;
+    private AllMethodsResponse lastResponse;
+    private Vector3 lastpos;
+    private Quaternion lastRos;
+    private List<List<string>> nameModel;
 
     private void Awake() => Instance = this;
 
-    public void SpawnResolvedModels(List<string> glbFileNames, Vector3 position, Quaternion rotation)
+    public void UpdateResponse(AllMethodsResponse response, Vector3 position, Quaternion rotation)
     {
-        ClearCurrentModels();
+        if (response == null) return;
 
-        for (int i = 0; i < glbFileNames.Count; i++)
+        lastResponse = response;
+        lastpos = position;
+        lastRos = rotation;
+
+        // 1. Organize the data into our 2D list: nameModel[MethodIndex][ModelIndex]
+        nameModel = new List<List<string>>
         {
-            GameObject glbObject = new GameObject($"GLB_{glbFileNames[i]}");
-            glbObject.transform.SetPositionAndRotation(position, rotation);
-
-            // Logic to load the actual model
-            LocalGlbLoader loader = glbObject.AddComponent<LocalGlbLoader>();
-            loader.Init($"{glbBaseFolder}{glbFileNames[i]}");
-            
-            // Only show the first one by default
-            loader.DefaultVisible = (i == 0);
-
-            loadedGlbObjects.Add(glbObject);
-        }
+            ExtractNames(response.imageEdit),
+            ExtractNames(response.vlm),
+            ExtractNames(response.clip),
+            ExtractNames(response.aesthetic)
+        };
     }
 
-    public void SetVisibleIndex(int index)
+    // Helper to extract string names from ClothingResult lists
+    private List<string> ExtractNames(List<ClothingResult> results)
     {
-        for (int i = 0; i < loadedGlbObjects.Count; i++)
+        List<string> names = new List<string>();
+        if (results != null)
         {
-            if (loadedGlbObjects[i] == null) continue;
-            
-            var loader = loadedGlbObjects[i].GetComponent<LocalGlbLoader>();
-            if (loader != null && loader.AvatarRoot != null)
+            foreach (var item in results)
             {
-                loader.AvatarRoot.SetActive(i == index);
+                // Assuming the .glb filename corresponds to the 'name' field
+                names.Add(item.name);
             }
         }
+        return names;
     }
 
-    public void ClearCurrentModels()
+    public void SpawnModel(int iM, int iA)
     {
-        foreach (var obj in loadedGlbObjects) if (obj != null) Destroy(obj);
-        loadedGlbObjects.Clear();
+        if (currentActiveModel != null) Destroy(currentActiveModel);
+        
+        string glbFileName = nameModel[iM][iA];
+        string fullPath = Path.Combine(glbBaseFolder, glbFileName + ".glb");
+
+        currentActiveModel = new GameObject($"{glbFileName}");
+        currentActiveModel.transform.SetPositionAndRotation(lastpos+spawnOffset, lastRos);
+
+        LocalGlbLoader loader = currentActiveModel.AddComponent<LocalGlbLoader>();
+        loader.Init(fullPath);
     }
 }

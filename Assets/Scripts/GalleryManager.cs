@@ -37,7 +37,7 @@ public class GalleryManager : MonoBehaviour
             if (i < currentList.Count)
             {
                 slots[i].gameObject.SetActive(true);
-                slots[i].Setup(currentList[i]);
+                slots[i].Setup(currentList[i], currentMethodIndex, i);
                 StartCoroutine(DownloadImage(currentList[i].image_url, slots[i].displayImage));
             }
             else
