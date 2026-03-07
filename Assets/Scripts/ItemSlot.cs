@@ -44,6 +44,7 @@ public class ItemSlot : MonoBehaviour
                 }
             });
             avaButton.onClick.AddListener(() => {
+                UserStudyLogger.Instance.RecordView(indexMethod, indexAvatar);
                 ModelSpawner.Instance.SpawnModel(indexMethod, indexAvatar);
             });
 

@@ -24,7 +24,9 @@ public class GalleryManager : MonoBehaviour
     public void NextMethod()
     {
         if (lastResponse == null) return;
-        CompetitveHandler.Instance.AppendCandidate(currentMethodIndex, GetSelectedIndex());
+        int selectedIndex = GetSelectedIndex();
+        CompetitveHandler.Instance.AppendCandidate(currentMethodIndex, selectedIndex);
+        UserStudyLogger.Instance.SetSelectedURL(currentMethodIndex, selectedIndex);
         if (currentMethodIndex == 3)
         {
             ++currentMethodIndex;
@@ -40,6 +42,12 @@ public class GalleryManager : MonoBehaviour
         if (methodTitleText != null) methodTitleText.text = methodTitles[currentMethodIndex];
         
         List<ClothingResult> currentList = GetListByIndex(currentMethodIndex);
+
+        // Record image URLs for the study logger
+        List<string> urls = new List<string>();
+        for (int i = 0; i < currentList.Count; i++)
+            urls.Add(currentList[i].image_url);
+        UserStudyLogger.Instance.SetImgURLs(currentMethodIndex, urls);
 
         for (int i = 0; i < slots.Length; i++)
         {
