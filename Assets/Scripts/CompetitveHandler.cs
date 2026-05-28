@@ -6,6 +6,12 @@ public class CompetitveHandler : MonoBehaviour
     public static CompetitveHandler Instance;
     public List<CandidateOutfit> cans = new List<CandidateOutfit>();
     private void Awake() => Instance = this;
+
+    public void ResetCandidates()
+    {
+        cans.Clear();
+    }
+
     public void AppendCandidate(int iM, int iA)
     {
         CandidateOutfit newOutfit = new CandidateOutfit 

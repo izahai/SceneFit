@@ -6,6 +6,7 @@ using TMPro;
 public class GalleryManager : MonoBehaviour 
 {
     public static GalleryManager Instance;
+    private const int FinalChoiceMethodIndex = 4;
     public TextMeshProUGUI methodTitleText;
     public ItemSlot[] slots; // Assign your 5 slots here
     private AllMethodsResponse lastResponse;
@@ -18,21 +19,44 @@ public class GalleryManager : MonoBehaviour
     {
         lastResponse = res;
         currentMethodIndex = 0;
+        CompetitveHandler.Instance?.ResetCandidates();
+        if (UserStudyLogger.Instance != null)
+            UserStudyLogger.Instance.Reset();
+        else
+            Debug.LogWarning("[UserStudy] UserStudyLogger is missing from the scene.");
         DisplayCurrentMethod();
     }
 
     public void NextMethod()
     {
         if (lastResponse == null) return;
+
         int selectedIndex = GetSelectedIndex();
-        CompetitveHandler.Instance.AppendCandidate(currentMethodIndex, selectedIndex);
-        UserStudyLogger.Instance.SetSelectedURL(currentMethodIndex, selectedIndex);
+        if (selectedIndex < 0)
+        {
+            Debug.LogWarning("[UserStudy] Select an outfit before continuing.");
+            return;
+        }
+
+        if (currentMethodIndex == FinalChoiceMethodIndex)
+        {
+            SubmitFinalChoice(selectedIndex);
+            return;
+        }
+
+        CompetitveHandler.Instance?.AppendCandidate(currentMethodIndex, selectedIndex);
+        if (UserStudyLogger.Instance != null)
+            UserStudyLogger.Instance.SetSelectedURL(currentMethodIndex, selectedIndex);
+        else
+            Debug.LogWarning("[UserStudy] UserStudyLogger is missing from the scene.");
+
         if (currentMethodIndex == 3)
         {
-            ++currentMethodIndex;
+            currentMethodIndex = FinalChoiceMethodIndex;
             DisplayFinalChoice();
             return;
         }
+
         currentMethodIndex = (currentMethodIndex + 1) % methodTitles.Length;
         DisplayCurrentMethod();
     }
@@ -47,7 +71,10 @@ public class GalleryManager : MonoBehaviour
         List<string> urls = new List<string>();
         for (int i = 0; i < currentList.Count; i++)
             urls.Add(currentList[i].image_url);
-        UserStudyLogger.Instance.SetImgURLs(currentMethodIndex, urls);
+        if (UserStudyLogger.Instance != null)
+            UserStudyLogger.Instance.SetImgURLs(currentMethodIndex, urls);
+        else
+            Debug.LogWarning("[UserStudy] UserStudyLogger is missing from the scene.");
 
         for (int i = 0; i < slots.Length; i++)
         {
@@ -68,8 +95,15 @@ public class GalleryManager : MonoBehaviour
     {
         if (methodTitleText != null) methodTitleText.text = methodTitles[currentMethodIndex];
 
+        if (CompetitveHandler.Instance == null)
+        {
+            Debug.LogWarning("[UserStudy] CompetitveHandler is missing from the scene.");
+            return;
+        }
+
         int i;
-        for (i = 0; i < slots.Length-1; i++)
+        int finalCandidateCount = Mathf.Min(CompetitveHandler.Instance.cans.Count, slots.Length - 1);
+        for (i = 0; i < finalCandidateCount; i++)
         {
             slots[i].gameObject.SetActive(true);
             CandidateOutfit can = CompetitveHandler.Instance.cans[i];
@@ -77,7 +111,8 @@ public class GalleryManager : MonoBehaviour
             slots[i].Setup(data, can.indexMethod, can.indexAvatar);
             StartCoroutine(DownloadImage(data.image_url, slots[i].displayImage));
         }
-        slots[i].gameObject.SetActive(false);
+        for (; i < slots.Length; i++)
+            slots[i].gameObject.SetActive(false);
     }
 
     private List<ClothingResult> GetListByIndex(int index)
@@ -145,5 +180,35 @@ public class GalleryManager : MonoBehaviour
         }
         
         return -1; // No selection found
+    }
+
+    private void SubmitFinalChoice(int selectedIndex)
+    {
+        if (CompetitveHandler.Instance == null)
+        {
+            Debug.LogWarning("[UserStudy] CompetitveHandler is missing from the scene.");
+            return;
+        }
+
+        if (selectedIndex < 0 || selectedIndex >= CompetitveHandler.Instance.cans.Count)
+        {
+            Debug.LogWarning("[UserStudy] Invalid final selection.");
+            return;
+        }
+
+        if (UserStudyLogger.Instance == null)
+        {
+            Debug.LogWarning("[UserStudy] UserStudyLogger is missing from the scene.");
+            return;
+        }
+
+        if (UserStudyLogger.Instance.IsSubmitting || UserStudyLogger.Instance.HasSubmitted)
+        {
+            Debug.LogWarning("[UserStudy] Submission already in progress or completed.");
+            return;
+        }
+
+        int winnerMethodIndex = CompetitveHandler.Instance.cans[selectedIndex].indexMethod;
+        UserStudyLogger.Instance.Submit(winnerMethodIndex);
     }
 }

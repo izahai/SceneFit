@@ -7,13 +7,20 @@ using System.Text;
 public class UserStudyLogger : MonoBehaviour
 {
     public static UserStudyLogger Instance;
-    [SerializeField] private string studyApiUrl = "http://127.0.0.1:8000/api/v1/study";
+
+    [Header("HTTP")]
+    [SerializeField] private string studyApiUrl = "https://synonymic-knowledgeable-edgardo.ngrok-free.dev/api/v1/study/response";
 
     private int[][] viewCounts;
     private string[][] imgURLs;
     private string[] selectedURLs;
-    private int slotCount = 5;
-    private string[] methodNames = { "Image Editing", "Vision Language Model", "CLIP Model", "Asthetic Model" };
+    private bool isSubmitting;
+    private bool hasSubmitted;
+    private const int SlotCount = 5;
+    private readonly string[] methodNames = { "Image Editing", "Vision Language Model", "CLIP Model", "Asthetic Model" };
+
+    public bool IsSubmitting => isSubmitting;
+    public bool HasSubmitted => hasSubmitted;
 
     private void Awake()
     {
@@ -26,10 +33,12 @@ public class UserStudyLogger : MonoBehaviour
         viewCounts = new int[4][];
         imgURLs = new string[4][];
         selectedURLs = new string[4];
+        isSubmitting = false;
+        hasSubmitted = false;
         for (int i = 0; i < 4; i++)
         {
-            viewCounts[i] = new int[slotCount];
-            imgURLs[i] = new string[slotCount];
+            viewCounts[i] = new int[SlotCount];
+            imgURLs[i] = new string[SlotCount];
         }
     }
 
@@ -37,7 +46,7 @@ public class UserStudyLogger : MonoBehaviour
     public void SetImgURLs(int methodIndex, List<string> urls)
     {
         if (methodIndex < 0 || methodIndex >= 4) return;
-        for (int i = 0; i < slotCount; i++)
+        for (int i = 0; i < SlotCount; i++)
             imgURLs[methodIndex][i] = (i < urls.Count) ? urls[i] : "";
     }
 
@@ -45,7 +54,7 @@ public class UserStudyLogger : MonoBehaviour
     public void SetSelectedURL(int methodIndex, int selectedSlotIndex)
     {
         if (methodIndex < 0 || methodIndex >= 4) return;
-        selectedURLs[methodIndex] = (selectedSlotIndex >= 0 && selectedSlotIndex < slotCount)
+        selectedURLs[methodIndex] = (selectedSlotIndex >= 0 && selectedSlotIndex < SlotCount)
             ? imgURLs[methodIndex][selectedSlotIndex]
             : "";
     }
@@ -53,17 +62,25 @@ public class UserStudyLogger : MonoBehaviour
     /// <summary>Call from ItemSlot when user clicks the avatar button to preview a model.</summary>
     public void RecordView(int methodIndex, int slotIndex)
     {
-        if (methodIndex >= 0 && methodIndex < 4 && slotIndex >= 0 && slotIndex < slotCount)
+        if (methodIndex >= 0 && methodIndex < 4 && slotIndex >= 0 && slotIndex < SlotCount)
             viewCounts[methodIndex][slotIndex]++;
     }
 
     public void Submit(int finalWinnerMethodIndex)
     {
+        if (isSubmitting || hasSubmitted)
+        {
+            Debug.LogWarning("[UserStudy] Duplicate submit ignored.");
+            return;
+        }
+
         StartCoroutine(PostStudyResponse(finalWinnerMethodIndex));
     }
 
     private IEnumerator PostStudyResponse(int finalWinnerMethodIndex)
     {
+        isSubmitting = true;
+
         var sb = new StringBuilder();
         sb.Append("{\"responses\":[");
 
@@ -74,10 +91,10 @@ public class UserStudyLogger : MonoBehaviour
 
             // imgURLs
             sb.Append("\"imgURLs\":[");
-            for (int s = 0; s < slotCount; s++)
+            for (int s = 0; s < SlotCount; s++)
             {
                 sb.Append($"\"{Esc(imgURLs[m][s])}\"");
-                if (s < slotCount - 1) sb.Append(",");
+                if (s < SlotCount - 1) sb.Append(",");
             }
             sb.Append("],");
 
@@ -86,10 +103,10 @@ public class UserStudyLogger : MonoBehaviour
 
             // viewCounts
             sb.Append("\"viewCounts\":[");
-            for (int s = 0; s < slotCount; s++)
+            for (int s = 0; s < SlotCount; s++)
             {
                 sb.Append(viewCounts[m][s]);
-                if (s < slotCount - 1) sb.Append(",");
+                if (s < SlotCount - 1) sb.Append(",");
             }
             sb.Append("]}");
             if (m < 3) sb.Append(",");
@@ -114,10 +131,15 @@ public class UserStudyLogger : MonoBehaviour
             yield return request.SendWebRequest();
 
             if (request.result == UnityWebRequest.Result.Success)
+            {
+                hasSubmitted = true;
                 Debug.Log($"[UserStudy] OK: {request.downloadHandler.text}");
+            }
             else
                 Debug.LogError($"[UserStudy] Error: {request.error}");
         }
+
+        isSubmitting = false;
     }
 
     private static string Esc(string s)

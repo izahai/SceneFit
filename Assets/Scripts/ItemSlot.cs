@@ -44,7 +44,10 @@ public class ItemSlot : MonoBehaviour
                 }
             });
             avaButton.onClick.AddListener(() => {
-                UserStudyLogger.Instance.RecordView(indexMethod, indexAvatar);
+                if (UserStudyLogger.Instance != null)
+                    UserStudyLogger.Instance.RecordView(indexMethod, indexAvatar);
+                else
+                    Debug.LogWarning("[UserStudy] UserStudyLogger is missing from the scene.");
                 ModelSpawner.Instance.SpawnModel(indexMethod, indexAvatar);
             });
 
