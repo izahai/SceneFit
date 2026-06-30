@@ -19,6 +19,21 @@ public class AllMethodsResponse
 }
 
 [Serializable]
+public class GalleryMethodFeedback
+{
+    public string methodId;
+    public int selectedRank;
+    public int[] viewCounts;
+}
+
+[Serializable]
+public class GalleryFeedbackPayload
+{
+    public List<GalleryMethodFeedback> responses;
+    public string finalWinnerMethodId;
+}
+
+[Serializable]
 public class TranscriptResponse
 {
     public string transcript;

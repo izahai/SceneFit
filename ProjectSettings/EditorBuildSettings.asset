@@ -18,7 +18,7 @@ EditorBuildSettings:
     path: Assets/Scenes/Cockpit/CockpitScene.unity
     guid: b78a0ca5d851e4ddf993dcc6feab56d0
   - enabled: 1
-    path: Assets/MyScene/Fit.unity
+    path: Assets/MyScene/MansionDemo.unity
     guid: 7fd44883992794b1988684171bdd5c1d
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 290a6e6411d135049940bec2237b8938, type: 2}

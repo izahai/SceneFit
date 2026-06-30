@@ -8,23 +8,43 @@ public class GalleryManager : MonoBehaviour
     public static GalleryManager Instance;
     public TextMeshProUGUI methodTitleText;
     public ItemSlot[] slots; // Assign your 5 slots here
+    public GalleryAnalytics analytics;
+    public ApiAnalyticsReporter analyticsReporter;
     private AllMethodsResponse lastResponse;
     private int currentMethodIndex = 0;
     private string[] methodTitles = { "Image Edit", "Vision Language Model", "CLIP Model", "Aesthetic Predictor", "Final Choice"};
     private Dictionary<string, Texture2D> imageCache = new Dictionary<string, Texture2D>();
-    private void Awake() => Instance = this;
+    private void Awake()
+    {
+        Instance = this;
+        if (analytics == null) analytics = GalleryAnalytics.Instance;
+        if (analyticsReporter == null) analyticsReporter = FindObjectOfType<ApiAnalyticsReporter>();
+    }
 
     public void UpdateResponse(AllMethodsResponse res) 
     {
         lastResponse = res;
         currentMethodIndex = 0;
+        if (CompetitveHandler.Instance != null)
+            CompetitveHandler.Instance.cans.Clear();
+        if (analytics != null)
+            analytics.ResetSession(4, slots.Length);
         DisplayCurrentMethod();
     }
 
     public void NextMethod()
     {
         if (lastResponse == null) return;
-        CompetitveHandler.Instance.AppendCandidate(currentMethodIndex, GetSelectedIndex());
+        if (currentMethodIndex >= 4)
+        {
+            Debug.LogWarning("Final choice displayed. Call SubmitFinalChoice() to send feedback.");
+            return;
+        }
+        int selectedIndex = GetSelectedIndex();
+        if (CompetitveHandler.Instance != null)
+            CompetitveHandler.Instance.AppendCandidate(currentMethodIndex, selectedIndex);
+        if (analytics != null)
+            analytics.SetSelectedRank(currentMethodIndex, selectedIndex);
         if (currentMethodIndex == 3)
         {
             ++currentMethodIndex;
@@ -137,5 +157,28 @@ public class GalleryManager : MonoBehaviour
         }
         
         return -1; // No selection found
+    }
+
+    public void SubmitFinalChoice()
+    {
+        if (analyticsReporter == null || analytics == null)
+        {
+            Debug.LogWarning("Missing analytics components on GalleryManager.");
+            return;
+        }
+
+        int finalSlotIndex = GetSelectedIndex();
+        int winnerMethodIndex = -1;
+
+        if (finalSlotIndex >= 0 && CompetitveHandler.Instance != null && finalSlotIndex < CompetitveHandler.Instance.cans.Count)
+            winnerMethodIndex = CompetitveHandler.Instance.cans[finalSlotIndex].indexMethod;
+
+        string finalWinnerMethodId = analytics.GetMethodId(winnerMethodIndex);
+        GalleryFeedbackPayload payload = analytics.BuildPayload(finalWinnerMethodId);
+
+        StartCoroutine(analyticsReporter.PostGalleryFeedback(payload, (ok) =>
+        {
+            Debug.Log(ok ? "Analytics submitted." : "Analytics submission failed.");
+        }));
     }
 }

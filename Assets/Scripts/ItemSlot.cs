@@ -44,6 +44,8 @@ public class ItemSlot : MonoBehaviour
                 }
             });
             avaButton.onClick.AddListener(() => {
+                if (GalleryAnalytics.Instance != null)
+                    GalleryAnalytics.Instance.RecordView(indexMethod, indexAvatar);
                 ModelSpawner.Instance.SpawnModel(indexMethod, indexAvatar);
             });
 
